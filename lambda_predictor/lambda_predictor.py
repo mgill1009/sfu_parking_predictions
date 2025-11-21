@@ -4,6 +4,7 @@ import boto3
 import psycopg2
 from datetime import datetime, timedelta, timezone
 from psycopg2 import sql
+from zoneinfo import ZoneInfo
 
 # Configuration
 DB_HOST = os.environ.get('DB_HOST')
@@ -22,6 +23,10 @@ MODEL_FEATURES = ['occupancy_now', 'day_of_week', 'hour_of_day', 'is_holiday', '
 
 # Initialize clients
 sagemaker_runtime = boto3.client('sagemaker-runtime')
+
+PST = ZoneInfo("America/Los_Angeles")
+
+
 
 def get_db_connection():
     return psycopg2.connect(
@@ -127,8 +132,11 @@ def lambda_handler(event, context):
         lots = get_current_state(conn)
         print(f"Fetched state for {len(lots)} lots")
 
-        run_time = datetime.now(timezone.utc)
-        target_time = run_time + timedelta(minutes=15)
+        run_time_utc = datetime.now(timezone.utc)
+        target_time_utc = run_time_utc + timedelta(minutes=15)
+
+        run_time = run_time_utc.astimezone(PST)
+        target_time = target_time_utc.astimezone(PST)
 
         # prepare all feature rows in order
         feature_rows = []
