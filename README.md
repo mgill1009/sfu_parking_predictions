@@ -25,13 +25,27 @@ flowchart TD
 
     subgraph "Historical 'Past' Pipeline"
         I[Historical CSVs] --> J(S3 Raw);
-        J -- Spark Job --> H;
+        J -- PySpark ETL Job --> H;
+    end
+    
+    subgraph "ML 'Future' Pipeline"
+        subgraph Feature Engineering
+            H -- All Events Parquet --> P(PySpark Job: 15-min Feature Aggregation);
+            P --> H;
+        end
+        
+        H -- Training Features --> O(SageMaker: Train & Deploy Models);
+        
+        M[EventBridge Schedule] --> N[Lambda C: Predictor Service];
+        N -- Current State Lookup --> F;
+        N -- Invoke Endpoints --> O;
+        N -- UPSERT Forecasts --> F;
     end
 
     subgraph "Analytics & Visualization"
         F -- Live Occupancy --> K{Dashboard};
-        H -- Glue Catalog --> L(Athena);
-        L -- Historical Trends --> K;
+        F -- Forecasts --> K;
+        H -- Historical Trends (via Glue Catalog) --> K;
     end
 ```
 
