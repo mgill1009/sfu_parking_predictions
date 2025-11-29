@@ -65,7 +65,7 @@ flowchart TD
 - **AWS Glue ETL:** Used for batch data processing, including historical summarization jobs.
 - **AWS EMR (Apache Spark):** Used for the one-time batch ETL job (`sfu_parking_etl.py`) to process historical CSVs.
 - **VPC & Networking:** All components are secured in a private VPC. A **Kinesis VPC Endpoint** is used to allow the private Lambdas to access the Kinesis API.
-
+  ![AWS Services Used](images/AWS_Services.png)
 
 ## File Descriptions
 
