@@ -177,6 +177,7 @@ Once the API Gateway and the Lambdas are running, start the continuous stream of
 Open the deployed web application and monitor the results of the pipeline in action.
 1. **View Live Status:** Open the Elastic Beanstalk URL and view the dashboard. The Live Occupancy count will update in real-time as the simulator sends ARRIVAL/DEPARTURE events through the Kinesis stream.
 2. **Verify Predictions:** After the EventBridge Schedule triggers Lambda C (every 15 minutes), the Forecasts section of the dashboard will update with the new predicted occupancy and departure counts.
+![Screenshot of Live Dashboard](images/dashboard_view.png)
 
 ## Project Insights
 ### Mission Accomplished
