@@ -12,43 +12,7 @@ The system is a hybrid real-time and batch architecture (Lambda Architecture).
 2.  **Batch Layer:** All data (both historical and real-time) is also converted to Apache Parquet and stored in a partitioned S3 data lake. This serves as the permanent, low-cost source of truth for "Past" analytics and "Future" model training.
 3.  **Predictive Layer (Future):** A scheduled Lambda function fetches the current state, invokes two deployed SageMaker Endpoints for forecasting, and stores the resulting predictions (occupancy count and departure count) back into the PostgreSQL database.
 
-```mermaid
-flowchart TD
-    subgraph "Real-time 'Present' Pipeline"
-        A[Python Simulator] --> B(API Gateway);
-        B --> C[Lambda A: Ingester];
-        C --> D(Kinesis Data Stream);
-        D -- Speed Layer --> E[Lambda B: Processor];
-        E --> F[PostgreSQL RDS];
-        D -- Batch Layer --> G(Kinesis Firehose);
-        G --> H[S3 Data Lake];
-    end
-
-    subgraph "Historical 'Past' Pipeline"
-        I[Historical CSVs] --> J(S3 Raw);
-        J -- PySpark ETL Job --> H;
-    end
-    
-    subgraph "ML 'Future' Pipeline"
-        subgraph Feature Engineering
-            H -- All Events Parquet --> P(PySpark Job: 15-min Feature Aggregation);
-            P --> H;
-        end
-        
-        H -- Training Features --> O(SageMaker: Train & Deploy Models);
-        
-        M[EventBridge Schedule] --> N[Lambda C: Predictor Service];
-        N -- Current State Lookup --> F;
-        N -- Invoke Endpoints --> O;
-        N -- UPSERT Forecasts --> F;
-    end
-
-    subgraph "Analytics & Visualization"
-        F -- Live Occupancy --> K{Dashboard};
-        F -- Forecasts --> K;
-        H -- Historical Trends (via Glue Catalog) --> K;
-    end
-```
+![Flowchart](images/flowchart.png)
 
 ## Core Components
 ### AWS Services
